@@ -1,0 +1,16 @@
+services:
+  api:
+    volumes:
+    - type: bind
+      source: ./librechat.yaml
+      target: /app/librechat.yaml
+    environment:
+      - APP_TITLE=ConstructChat 
+      - APP_DESCRIPTION=ConstructChat is a chatbot platform that allows you to create and deploy chatbots on your website.
+      - APP_URL=https://constructchat.ai
+      - APP_LOGO=https://constructchat.ai/logo.png
+      - APP_FAVICON=https://constructchat.ai/favicon.ico
+      - APP_THEME=light
+      - APP_LANGUAGE=en
+    image: ghcr.io/danny-avila/librechat:latest
+    
