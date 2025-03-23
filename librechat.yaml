@@ -37,6 +37,8 @@ interface:
 # Registration configuration
 registration:
   socialLogins: ['github', 'google', 'discord', 'openid', 'facebook', 'apple']
+  allowedDomains:
+    - "gmail.com"
 
 # Actions allowlist
 actions:
@@ -44,6 +46,24 @@ actions:
     - "swapi.dev"
     - "librechat.ai"
     - "google.com" 
-    - "constructchat.ai"
-    - "constructchat.com"
-    - "construct.chat"
+
+# MCP Servers
+mcpServers:
+  procore:
+    # type: sse # type can optionally be omitted
+    url: http://localhost:8000/sse
+    iconpath: /home/construct/LibreChat/client/public/assets/procore.svg
+  puppeteer:
+    type: stdio
+    command: npx
+    args:
+      - -y
+      - "@modelcontextprotocol/server-puppeteer"
+  filesystem:
+    # type: stdio
+    command: npx
+    args:
+      - -y
+      - "@modelcontextprotocol/server-filesystem"
+      - /home/construct/LibreChat/
+    iconPath: /home/construct/LibreChat/client/public/assets/logo.svg
