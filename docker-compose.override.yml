@@ -6,7 +6,7 @@ services:
       target: /app/librechat.yaml
     environment:
       - APP_TITLE=ConstructChat 
-      - APP_DESCRIPTION=ConstructChat is a chatbot platform that allows you to create and deploy chatbots on your website.
+      - APP_DESCRIPTION=ConstructChat is a chatbot platform that allows you to gain insight into your construction data.
       - APP_URL=https://constructchat.ai
       - APP_LOGO=https://constructchat.ai/logo.png
       - APP_FAVICON=https://constructchat.ai/favicon.ico
