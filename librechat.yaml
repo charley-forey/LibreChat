@@ -9,7 +9,7 @@ cache: true
 
 # Custom interface configuration
 interface:
-  customWelcome: "Welcome to ConstructChat! Enjoy your experience."
+  customWelcome: "Welcome to ConstructChat!"
   # Privacy policy settings
   privacyPolicy:
     externalUrl: 'https://constructchat.ai/privacy-policy'
