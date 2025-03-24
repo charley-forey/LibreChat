@@ -12,5 +12,4 @@ services:
       - APP_FAVICON=https://constructchat.ai/favicon.ico
       - APP_THEME=light
       - APP_LANGUAGE=en
-    image: ghcr.io/danny-avila/librechat:latest
-    
+

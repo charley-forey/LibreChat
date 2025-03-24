@@ -50,20 +50,6 @@ actions:
 # MCP Servers
 mcpServers:
   procore:
-    # type: sse # type can optionally be omitted
-    url: http://localhost:8000/sse
-    iconpath: /home/construct/LibreChat/client/public/assets/procore.svg
-  puppeteer:
-    type: stdio
-    command: npx
-    args:
-      - -y
-      - "@modelcontextprotocol/server-puppeteer"
-  filesystem:
-    # type: stdio
-    command: npx
-    args:
-      - -y
-      - "@modelcontextprotocol/server-filesystem"
-      - /home/construct/LibreChat/
-    iconPath: /home/construct/LibreChat/client/public/assets/logo.svg
+    type: sse
+    url: http://supergateway:5000/sse
+    iconPath: /home/construct/LibreChat/client/public/assets/procore.svg

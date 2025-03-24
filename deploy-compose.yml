@@ -30,6 +30,9 @@ services:
       - ./images:/app/client/public/images
       - ./uploads:/app/uploads
       - ./logs:/app/api/logs
+    networks:
+      - default
+      - librechat_network
 
   client:
     image: nginx:1.27.0-alpine
@@ -86,3 +89,8 @@ services:
 
 volumes:
   pgdata2:
+
+networks:
+  default:
+  librechat_network:
+    external: true
