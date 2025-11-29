@@ -1,13 +1,18 @@
 services:
   api:
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile.multi
-    #   target: api-build
-    image: ghcr.io/danny-avila/librechat-dev-api:latest
-    container_name: LibreChat-API
+    # For custom fork, you need to build your own image
+    # Option 1: Build from source (uncomment build section, comment image line)
+    build:
+      context: .
+      dockerfile: Dockerfile.multi
+      target: api-build
+    # Option 2: Use pre-built custom image (if you build and push to a registry)
+    # image: ghcr.io/charley-forey/librechat-dev-api:latest
+    # Option 3: Use upstream image (won't have your customizations)
+    # image: ghcr.io/danny-avila/librechat-dev-api:latest
+    container_name: LibreChat-API-App
     ports:
-      - 3080:3080
+      - 3081:3080
     depends_on:
       - mongodb
       - rag_api
@@ -33,17 +38,19 @@ services:
 
   client:
     image: nginx:1.27.0-alpine
-    container_name: LibreChat-NGINX
+    container_name: LibreChat-NGINX-App
     ports:
-      - 80:80
-      - 443:443
+      # Don't expose 80/443 here - we'll use host nginx as reverse proxy
+      # - 80:80
+      # - 443:443
+      - 3082:80
     depends_on:
       - api
     restart: always
     volumes:
       - ./client/nginx.conf:/etc/nginx/conf.d/default.conf
   mongodb:
-    container_name: chat-mongodb
+    container_name: chat-mongodb-app
     # ports:  # Uncomment this to access mongodb from outside docker, not safe in deployment
     #   - 27018:27017
     image: mongo
@@ -52,7 +59,7 @@ services:
       - ./data-node:/data/db
     command: mongod --noauth
   meilisearch:
-    container_name: chat-meilisearch
+    container_name: chat-meilisearch-app
     image: getmeili/meilisearch:v1.12.3
     restart: always
     # ports: # Uncomment this to access meilisearch from outside docker
@@ -65,6 +72,7 @@ services:
     volumes:
       - ./meili_data_v1.12:/meili_data
   vectordb:
+    container_name: vectordb-app
     image: pgvector/pgvector:0.8.0-pg15-trixie
     environment:
       POSTGRES_DB: mydatabase
@@ -72,8 +80,9 @@ services:
       POSTGRES_PASSWORD: mypassword
     restart: always
     volumes:
-      - pgdata2:/var/lib/postgresql/data
+      - pgdata2-app:/var/lib/postgresql/data
   rag_api:
+    container_name: rag_api-app
     image: ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest
     environment:
       - DB_HOST=vectordb
@@ -85,4 +94,4 @@ services:
       - .env
 
 volumes:
-  pgdata2:
+  pgdata2-app:
