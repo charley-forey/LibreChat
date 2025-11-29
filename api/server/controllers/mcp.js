@@ -49,23 +49,24 @@ const getMCPTools = async (req, res) => {
         continue;
       }
 
+      let serverTools;
       try {
-        const serverTools = await mcpManager.getServerToolFunctions(userId, serverName);
-        if (!serverTools) {
-          logger.debug(`[getMCPTools] No tools found for server ${serverName}`);
-          continue;
-        }
-        serverToolsMap.set(serverName, serverTools);
-
-        if (Object.keys(serverTools).length > 0) {
-          // Cache asynchronously without blocking
-          cacheMCPServerTools({ userId, serverName, serverTools }).catch((err) =>
-            logger.error(`[getMCPTools] Failed to cache tools for ${serverName}:`, err),
-          );
-        }
+        serverTools = await mcpManager.getServerToolFunctions(userId, serverName);
       } catch (error) {
         logger.error(`[getMCPTools] Error fetching tools for server ${serverName}:`, error);
-        // Continue processing other servers even if one fails
+        continue;
+      }
+      if (!serverTools) {
+        logger.debug(`[getMCPTools] No tools found for server ${serverName}`);
+        continue;
+      }
+      serverToolsMap.set(serverName, serverTools);
+
+      if (Object.keys(serverTools).length > 0) {
+        // Cache asynchronously without blocking
+        cacheMCPServerTools({ userId, serverName, serverTools }).catch((err) =>
+          logger.error(`[getMCPTools] Failed to cache tools for ${serverName}:`, err),
+        );
       }
     }
 
