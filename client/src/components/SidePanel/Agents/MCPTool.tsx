@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import * as Ariakit from '@ariakit/react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Search, X } from 'lucide-react';
 import { useFormContext } from 'react-hook-form';
 import { Constants } from 'librechat-data-provider';
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
@@ -22,6 +22,60 @@ import MCPServerStatusIcon from '~/components/MCP/MCPServerStatusIcon';
 import MCPConfigDialog from '~/components/MCP/MCPConfigDialog';
 import { cn } from '~/utils';
 
+// Semantic search function - calculates relevance score for tools
+function calculateToolRelevanceScore(
+  tool: { metadata: { name?: string; description?: string } },
+  query: string,
+): number {
+  if (!query.trim()) return 100;
+
+  const queryLower = query.trim().toLowerCase();
+  const name = tool.metadata.name?.toLowerCase() || '';
+  const description = tool.metadata.description?.toLowerCase() || '';
+
+  let maxScore = 0;
+
+  // Check name matches
+  if (name) {
+    if (name === queryLower) {
+      maxScore = Math.max(maxScore, 100); // Exact match
+    } else if (name.startsWith(queryLower)) {
+      maxScore = Math.max(maxScore, 80); // Starts with
+    } else if (name.includes(queryLower)) {
+      maxScore = Math.max(maxScore, 60); // Contains
+    } else {
+      // Check for word matches
+      const nameWords = name.split(/\s+/);
+      const queryWords = queryLower.split(/\s+/);
+      const matchingWords = queryWords.filter((qw) =>
+        nameWords.some((nw) => nw.startsWith(qw) || nw.includes(qw)),
+      );
+      if (matchingWords.length > 0) {
+        maxScore = Math.max(maxScore, 40 + matchingWords.length * 5); // Partial word matches
+      }
+    }
+  }
+
+  // Check description matches (weighted lower than name)
+  if (description) {
+    if (description.includes(queryLower)) {
+      maxScore = Math.max(maxScore, 30); // Description contains query
+    } else {
+      // Check for word matches in description
+      const descWords = description.split(/\s+/);
+      const queryWords = queryLower.split(/\s+/);
+      const matchingWords = queryWords.filter((qw) =>
+        descWords.some((dw) => dw.startsWith(qw) || dw.includes(qw)),
+      );
+      if (matchingWords.length > 0) {
+        maxScore = Math.max(maxScore, 20 + matchingWords.length * 3); // Partial word matches in description
+      }
+    }
+  }
+
+  return maxScore;
+}
+
 export default function MCPTool({ serverInfo }: { serverInfo?: MCPServerInfo }) {
   const localize = useLocalize();
   const { removeTool } = useRemoveMCPTool();
@@ -32,6 +86,9 @@ export default function MCPTool({ serverInfo }: { serverInfo?: MCPServerInfo }) 
   const [isHovering, setIsHovering] = useState(false);
   const [accordionValue, setAccordionValue] = useState<string>('');
   const [hoveredToolId, setHoveredToolId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   if (!serverInfo) {
     return null;
@@ -58,6 +115,57 @@ export default function MCPTool({ serverInfo }: { serverInfo?: MCPServerInfo }) 
 
   const statusIconProps = getServerStatusIconProps(currentServerName);
   const configDialogProps = getConfigDialogProps();
+
+  // Filter and sort tools based on search query, with selected tools at the top
+  const filteredTools = useMemo(() => {
+    if (!serverInfo?.tools) return [];
+
+    const hasSearchQuery = searchQuery.trim().length > 0;
+
+    // Calculate scores for all tools if searching, and track original index
+    const toolsWithScores = serverInfo.tools.map((tool, index) => ({
+      tool,
+      score: hasSearchQuery ? calculateToolRelevanceScore(tool, searchQuery) : 0,
+      isSelected: selectedTools.includes(tool.tool_id),
+      originalIndex: index,
+    }));
+
+    // Filter out tools with score 0 if searching
+    const filtered = hasSearchQuery
+      ? toolsWithScores.filter(({ score }) => score > 0)
+      : toolsWithScores;
+
+    // Sort: selected tools first, then by relevance score (if searching) or original order
+    return filtered
+      .sort((a, b) => {
+        // First, prioritize selected tools
+        if (a.isSelected !== b.isSelected) {
+          return a.isSelected ? -1 : 1;
+        }
+        // If both have same selection status, sort by relevance score (if searching)
+        if (hasSearchQuery && a.score !== b.score) {
+          return b.score - a.score;
+        }
+        // Maintain original order if not searching or same score
+        return a.originalIndex - b.originalIndex;
+      })
+      .map(({ tool }) => tool);
+  }, [serverInfo?.tools, searchQuery, selectedTools]);
+
+  // Focus search input when search is activated
+  useEffect(() => {
+    if (isSearchActive && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchActive]);
+
+  // Clear search when accordion is closed
+  useEffect(() => {
+    if (!isExpanded) {
+      setSearchQuery('');
+      setIsSearchActive(false);
+    }
+  }, [isExpanded]);
 
   const statusIcon = statusIconProps && (
     <div
@@ -172,6 +280,33 @@ export default function MCPTool({ serverInfo }: { serverInfo?: MCPServerInfo }) 
                         </div>
 
                         <div className="flex items-center gap-1">
+                          {/* Search button - only show when expanded */}
+                          {isExpanded && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setIsSearchActive(!isSearchActive);
+                                if (!isSearchActive) {
+                                  setTimeout(() => {
+                                    searchInputRef.current?.focus();
+                                  }, 0);
+                                } else {
+                                  setSearchQuery('');
+                                }
+                              }}
+                              className={cn(
+                                'flex h-7 w-7 items-center justify-center rounded transition-colors duration-200 hover:bg-surface-active-alt focus:translate-x-0 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1',
+                                isSearchActive && 'bg-surface-active-alt',
+                              )}
+                              aria-label={localize('com_ui_search')}
+                              tabIndex={0}
+                              onFocus={() => setIsFocused(true)}
+                            >
+                              <Search className="h-4 w-4" />
+                            </button>
+                          )}
+
                           {/* Caret button for accordion */}
                           <AccordionPrimitive.Trigger asChild>
                             <button
@@ -183,7 +318,11 @@ export default function MCPTool({ serverInfo }: { serverInfo?: MCPServerInfo }) 
                                 'flex h-7 w-7 items-center justify-center rounded transition-colors duration-200 hover:bg-surface-active-alt focus:translate-x-0 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1',
                                 isExpanded && 'bg-surface-active-alt',
                               )}
-                              aria-hidden="true"
+                              aria-label={
+                                isExpanded
+                                  ? localize('com_ui_collapse') || 'Collapse'
+                                  : localize('com_ui_expand') || 'Expand'
+                              }
                               tabIndex={0}
                               onFocus={() => setIsFocused(true)}
                             >
@@ -221,8 +360,60 @@ export default function MCPTool({ serverInfo }: { serverInfo?: MCPServerInfo }) 
           </div>
 
           <AccordionContent className="relative ml-1 pt-1 before:absolute before:bottom-2 before:left-0 before:top-0 before:w-0.5 before:bg-border-medium">
-            <div className="space-y-1">
-              {serverInfo.tools?.map((subTool) => (
+            {/* Search input - only show when search is active */}
+            {isSearchActive && (
+              <div className="mb-2 ml-2 mr-1">
+                <div className="relative flex items-center">
+                  <Search className="absolute left-3 h-4 w-4 text-text-secondary" />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => {
+                      e.stopPropagation();
+                      if (e.key === 'Escape') {
+                        setSearchQuery('');
+                        setIsSearchActive(false);
+                      }
+                    }}
+                    placeholder={localize('com_ui_search_tools') || 'Search tools...'}
+                    className="border-token-border-light bg-token-surface-secondary text-token-text-primary h-9 w-full rounded-lg border pl-9 pr-9 text-sm outline-none placeholder:text-text-secondary-alt focus:ring-2 focus:ring-ring focus:ring-offset-1"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSearchQuery('');
+                        searchInputRef.current?.focus();
+                      }}
+                      className="absolute right-2 flex h-5 w-5 items-center justify-center rounded text-text-secondary hover:bg-surface-active-alt"
+                      aria-label={localize('com_ui_clear') || 'Clear search'}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+                {searchQuery && (
+                  <div className="mt-1 text-xs text-text-secondary">
+                    {filteredTools.length === 0
+                      ? localize('com_ui_no_results') || 'No results found'
+                      : `${filteredTools.length} ${filteredTools.length === 1 ? 'tool' : 'tools'} found`}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Scrollable container for tools list */}
+            <div className="max-h-[400px] space-y-1 overflow-y-auto pr-1">
+              {filteredTools.length === 0 && searchQuery ? (
+                <div className="ml-2 mr-1 py-4 text-center text-sm text-text-secondary">
+                  {localize('com_ui_no_results') || 'No tools found matching your search'}
+                </div>
+              ) : (
+                filteredTools.map((subTool) => (
                 <label
                   key={subTool.tool_id}
                   htmlFor={subTool.tool_id}
@@ -314,7 +505,8 @@ export default function MCPTool({ serverInfo }: { serverInfo?: MCPServerInfo }) 
                     </Ariakit.HovercardProvider>
                   )}
                 </label>
-              ))}
+                ))
+              )}
             </div>
           </AccordionContent>
         </AccordionItem>

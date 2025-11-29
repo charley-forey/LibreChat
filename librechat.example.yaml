@@ -1,5 +1,5 @@
 # For more information, see the Configuration Guide:
-# https://www.librechat.ai/docs/configuration/librechat_yaml
+# https://www.construct.chat/docs/configuration/librechat_yaml
 
 # Configuration version (required)
 version: 1.2.1
@@ -27,32 +27,32 @@ cache: true
 
 # Custom interface configuration
 interface:
-  customWelcome: 'Welcome to LibreChat! Enjoy your experience.'
+  customWelcome: 'Welcome to Construct.Chat! Enjoy your experience.'
   # Enable/disable file search as a chatarea selection (default: true)
   # Note: This setting does not disable the Agents File Search Capability.
   # To disable the Agents Capability, see the Agents Endpoint configuration instead.
   fileSearch: true
   # Privacy policy settings
   privacyPolicy:
-    externalUrl: 'https://librechat.ai/privacy-policy'
+    externalUrl: 'https://construct.chat/privacy-policy'
     openNewTab: true
 
   # Terms of service
   termsOfService:
-    externalUrl: 'https://librechat.ai/tos'
+    externalUrl: 'https://construct.chat/tos'
     openNewTab: true
     modalAcceptance: true
-    modalTitle: 'Terms of Service for LibreChat'
+    modalTitle: 'Terms of Service for Construct.Chat'
     modalContent: |
-      # Terms and Conditions for LibreChat
+      # Terms and Conditions for Construct.Chat
 
       *Effective Date: February 18, 2024*
 
-      Welcome to LibreChat, the informational website for the open-source AI chat platform, available at https://librechat.ai. These Terms of Service ("Terms") govern your use of our website and the services we offer. By accessing or using the Website, you agree to be bound by these Terms and our Privacy Policy, accessible at https://librechat.ai//privacy.
+      Welcome to Construct.Chat, the informational website for the AI chat platform, available at https://construct.chat. These Terms of Service ("Terms") govern your use of our website and the services we offer. By accessing or using the Website, you agree to be bound by these Terms and our Privacy Policy, accessible at https://construct.chat//privacy.
 
       ## 1. Ownership
 
-      Upon purchasing a package from LibreChat, you are granted the right to download and use the code for accessing an admin panel for LibreChat. While you own the downloaded code, you are expressly prohibited from reselling, redistributing, or otherwise transferring the code to third parties without explicit permission from LibreChat.
+      Upon purchasing a package from Construct.Chat, you are granted the right to download and use the code for accessing an admin panel for Construct.Chat. While you own the downloaded code, you are expressly prohibited from reselling, redistributing, or otherwise transferring the code to third parties without explicit permission from Construct.Chat.
 
       ## 2. User Data
 
@@ -76,7 +76,7 @@ interface:
 
       ## 7. Contact Information
 
-      If you have any questions about these Terms, please contact us at contact@librechat.ai.
+      If you have any questions about these Terms, please contact us at contact@construct.chat.
 
       By using the Website, you acknowledge that you have read these Terms of Service and agree to be bound by them.
 
@@ -160,7 +160,7 @@ registration:
 actions:
   allowedDomains:
     - 'swapi.dev'
-    - 'librechat.ai'
+    - 'construct.chat'
     - 'google.com'
 
 # Example MCP Servers Object Structure
@@ -416,7 +416,7 @@ endpoints:
 #     maxHeight: 1900  # Maximum height for resized images (default: 1900)
 #     quality: 0.92  # JPEG quality for compression (0.0-1.0, default: 0.92)
 # # See the Custom Configuration Guide for more information on Assistants Config:
-# # https://www.librechat.ai/docs/configuration/librechat_yaml/object_structure/assistants_endpoint
+# # https://www.construct.chat/docs/configuration/librechat_yaml/object_structure/assistants_endpoint
 
 # Web Search Configuration (optional)
 # webSearch:

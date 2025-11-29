@@ -33,7 +33,12 @@ const getMCPTools = async (req, res) => {
     const mcpServers = {};
 
     const cachePromises = configuredServers.map((serverName) =>
-      getMCPServerTools(userId, serverName).then((tools) => ({ serverName, tools })),
+      getMCPServerTools(userId, serverName)
+        .then((tools) => ({ serverName, tools }))
+        .catch((error) => {
+          logger.error(`[getMCPTools] Error fetching cached tools for ${serverName}:`, error);
+          return { serverName, tools: null };
+        }),
     );
     const cacheResults = await Promise.all(cachePromises);
 
@@ -44,18 +49,23 @@ const getMCPTools = async (req, res) => {
         continue;
       }
 
-      const serverTools = await mcpManager.getServerToolFunctions(userId, serverName);
-      if (!serverTools) {
-        logger.debug(`[getMCPTools] No tools found for server ${serverName}`);
-        continue;
-      }
-      serverToolsMap.set(serverName, serverTools);
+      try {
+        const serverTools = await mcpManager.getServerToolFunctions(userId, serverName);
+        if (!serverTools) {
+          logger.debug(`[getMCPTools] No tools found for server ${serverName}`);
+          continue;
+        }
+        serverToolsMap.set(serverName, serverTools);
 
-      if (Object.keys(serverTools).length > 0) {
-        // Cache asynchronously without blocking
-        cacheMCPServerTools({ userId, serverName, serverTools }).catch((err) =>
-          logger.error(`[getMCPTools] Failed to cache tools for ${serverName}:`, err),
-        );
+        if (Object.keys(serverTools).length > 0) {
+          // Cache asynchronously without blocking
+          cacheMCPServerTools({ userId, serverName, serverTools }).catch((err) =>
+            logger.error(`[getMCPTools] Failed to cache tools for ${serverName}:`, err),
+          );
+        }
+      } catch (error) {
+        logger.error(`[getMCPTools] Error fetching tools for server ${serverName}:`, error);
+        // Continue processing other servers even if one fails
       }
     }
 

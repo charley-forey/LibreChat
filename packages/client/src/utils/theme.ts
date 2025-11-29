@@ -27,12 +27,8 @@ export const getInitialTheme = () => {
     if (typeof storedPrefs === 'string') {
       return storedPrefs;
     }
-
-    const userMedia = window.matchMedia('(prefers-color-scheme: dark)');
-    if (userMedia.matches) {
-      return 'dark';
-    }
   }
 
-  return 'light';
+  // Default to dark if no preference is stored
+  return 'dark';
 };

@@ -5,7 +5,8 @@ import { IThemeRGB } from '../types';
  * Atom for storing the theme mode (light/dark/system) in localStorage
  * Key: 'color-theme'
  */
-export const themeModeAtom = atomWithStorage<string>('color-theme', 'system', undefined, {
+// Default to 'dark' so the app initially loads in dark mode unless the user chooses otherwise
+export const themeModeAtom = atomWithStorage<string>('color-theme', 'dark', undefined, {
   getOnInit: true,
 });
 

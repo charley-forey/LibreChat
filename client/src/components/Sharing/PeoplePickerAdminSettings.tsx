@@ -208,7 +208,7 @@ const PeoplePickerAdminSettings = () => {
                 type="button"
                 onClick={handleSubmit(onSubmit)}
                 disabled={isSubmitting || isLoading}
-                className="btn rounded bg-green-500 font-bold text-white transition-all hover:bg-green-600"
+                className="btn rounded bg-[var(--construct-chat-yellow)] font-bold text-white transition-all hover:bg-[var(--construct-chat-yellow-hover)]"
               >
                 {localize('com_ui_save')}
               </button>

@@ -1,4 +1,5 @@
-import { ThemeSelector } from '@librechat/client';
+import { useContext } from 'react';
+import { ThemeSelector, ThemeContext, isDark } from '@librechat/client';
 import { TStartupConfig } from 'librechat-data-provider';
 import { ErrorMessage } from '~/components/Auth/ErrorMessage';
 import { TranslationKeys, useLocalize } from '~/hooks';
@@ -25,6 +26,10 @@ function AuthLayout({
   error: TranslationKeys | null;
 }) {
   const localize = useLocalize();
+  const { theme } = useContext(ThemeContext);
+  const textLogoSrc = isDark(theme)
+    ? 'assets/logo-text-white-no-bg.png'
+    : 'assets/logo-text-black-no-bg.png';
 
   const hasStartupConfigError = startupConfigError !== null && startupConfigError !== undefined;
   const DisplayError = () => {
@@ -60,12 +65,23 @@ function AuthLayout({
     <div className="relative flex min-h-screen flex-col bg-white dark:bg-gray-900">
       <Banner />
       <BlinkAnimation active={isFetching}>
-        <div className="mt-6 h-10 w-full bg-cover">
+        <div className="mt-6 flex w-full flex-col items-center gap-3">
           <img
-            src="assets/logo.svg"
-            className="h-full w-full object-contain"
-            alt={localize('com_ui_logo', { 0: startupConfig?.appTitle ?? 'LibreChat' })}
+            src={textLogoSrc}
+            className="h-8 w-auto object-contain sm:h-10"
+            alt={localize('com_ui_logo', {
+              0: startupConfig?.appTitle ?? 'Construct.Chat - AI-Powered Construction Intelligence & Automation',
+            })}
           />
+          <div className="h-16 w-full bg-cover sm:h-20">
+            <img
+              src="assets/logo.png"
+              className="h-full w-full object-contain"
+              alt={localize('com_ui_logo', {
+                0: startupConfig?.appTitle ?? 'Construct.Chat - AI-Powered Construction Intelligence & Automation',
+              })}
+            />
+          </div>
         </div>
       </BlinkAnimation>
       <DisplayError />

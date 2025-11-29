@@ -55,6 +55,8 @@
   --gizmo-gray-500: #999;
   --gizmo-gray-600: #666;
   --gizmo-gray-950: #0f0f0f;
+  --construct-chat-yellow: #f7b90f;
+  --construct-chat-yellow-hover: #e0a800;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -86,8 +88,8 @@ html {
   --surface-tertiary: var(--gray-100);
   --surface-tertiary-alt: var(--white);
   --surface-dialog: var(--white);
-  --surface-submit: var(--green-700);
-  --surface-submit-hover: var(--green-800);
+  --surface-submit: var(--construct-chat-yellow);
+  --surface-submit-hover: var(--construct-chat-yellow-hover);
   --surface-destructive: var(--red-700);
   --surface-destructive-hover: var(--red-800);
   --surface-chat: var(--white);
@@ -146,8 +148,8 @@ html {
   --surface-tertiary: var(--gray-700);
   --surface-tertiary-alt: var(--gray-700);
   --surface-dialog: var(--gray-850);
-  --surface-submit: var(--green-700);
-  --surface-submit-hover: var(--green-800);
+  --surface-submit: var(--construct-chat-yellow);
+  --surface-submit-hover: var(--construct-chat-yellow-hover);
   --surface-destructive: var(--red-800);
   --surface-destructive-hover: var(--red-900);
   --surface-chat: var(--gray-700);
@@ -1358,12 +1360,12 @@ button {
 .btn-primary {
   --tw-bg-opacity: 1;
   --tw-text-opacity: 1;
-  background-color: rgba(16, 163, 127, var(--tw-bg-opacity));
-  color: rgba(255, 255, 255, var(--tw-text-opacity));
+  background-color: var(--construct-chat-yellow);
+  color: rgba(0, 0, 0, var(--tw-text-opacity));
 }
 .btn-primary:hover {
   --tw-bg-opacity: 1;
-  background-color: rgba(26, 127, 100, var(--tw-bg-opacity));
+  background-color: var(--construct-chat-yellow-hover);
 }
 .btn-primary:focus {
   --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width)
@@ -1380,15 +1382,15 @@ button {
 }
 .btn-primary.focus-visible {
   --tw-ring-opacity: 1;
-  --tw-ring-color: rgba(25, 195, 125, var(--tw-ring-opacity));
+  --tw-ring-color: rgba(247, 185, 15, var(--tw-ring-opacity));
 }
 .btn-primary:focus-visible {
   --tw-ring-opacity: 1;
-  --tw-ring-color: rgba(25, 195, 125, var(--tw-ring-opacity));
+  --tw-ring-color: rgba(247, 185, 15, var(--tw-ring-opacity));
 }
 .btn-primary:disabled:hover {
   --tw-bg-opacity: 1;
-  background-color: rgba(16, 163, 127, var(--tw-bg-opacity));
+  background-color: var(--construct-chat-yellow);
 }
 .btn-secondary {
   --tw-border-opacity: 1;

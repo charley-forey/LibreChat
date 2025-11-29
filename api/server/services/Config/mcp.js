@@ -17,15 +17,39 @@ async function updateMCPServerTools({ userId, serverName, tools }) {
     const mcpDelimiter = Constants.mcp_delimiter;
 
     for (const tool of tools) {
-      const name = `${tool.name}${mcpDelimiter}${serverName}`;
-      serverTools[name] = {
-        type: 'function',
-        ['function']: {
-          name,
-          description: tool.description,
-          parameters: tool.inputSchema,
-        },
-      };
+      try {
+        // Ensure inputSchema exists and is valid
+        if (!tool.inputSchema) {
+          logger.warn(
+            `[MCP Cache] Tool ${tool.name} from server ${serverName} missing inputSchema, using empty object`,
+          );
+          tool.inputSchema = { type: 'object', properties: {} };
+        }
+
+        // Normalize inputSchema - ensure it has a type field
+        // MCP tools can have various inputSchema types, but we need to ensure it's a valid JSON schema
+        if (!tool.inputSchema.type) {
+          // If no type is specified, default to object
+          tool.inputSchema = { type: 'object', ...tool.inputSchema };
+        }
+
+        const name = `${tool.name}${mcpDelimiter}${serverName}`;
+        serverTools[name] = {
+          type: 'function',
+          ['function']: {
+            name,
+            description: tool.description || '',
+            parameters: tool.inputSchema,
+          },
+        };
+      } catch (toolError) {
+        logger.error(
+          `[MCP Cache] Error processing tool ${tool.name} from server ${serverName}:`,
+          toolError,
+        );
+        // Continue processing other tools even if one fails
+        continue;
+      }
     }
 
     await setCachedTools(serverTools, { userId, serverName });
@@ -33,7 +57,7 @@ async function updateMCPServerTools({ userId, serverName, tools }) {
     const cache = getLogStores(CacheKeys.CONFIG_STORE);
     await cache.delete(CacheKeys.TOOLS);
     logger.debug(
-      `[MCP Cache] Updated ${tools.length} tools for server ${serverName} (user: ${userId})`,
+      `[MCP Cache] Updated ${Object.keys(serverTools).length} tools for server ${serverName} (user: ${userId})`,
     );
     return serverTools;
   } catch (error) {
