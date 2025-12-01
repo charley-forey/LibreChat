@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Spinner } from '@librechat/client';
 import { useParams } from 'react-router-dom';
-import { Constants, EModelEndpoint } from 'librechat-data-provider';
+import { Constants, EModelEndpoint, LocalStorageKeys } from 'librechat-data-provider';
 import { useGetModelsQuery } from 'librechat-data-provider/react-query';
 import type { TPreset } from 'librechat-data-provider';
 import { useGetConvoIdQuery, useGetStartupConfig, useGetEndpointsQuery } from '~/data-provider';
@@ -53,6 +53,17 @@ export default function ChatRoute() {
       setIsTemporary(isTemporaryChat);
     }
   }, [conversationId, isTemporaryChat, setIsTemporary]);
+
+  // Set document title for /c/new page
+  useEffect(() => {
+    if (conversationId === Constants.NEW_CONVO) {
+      const appTitle =
+        startupConfig?.appTitle ||
+        localStorage.getItem(LocalStorageKeys.APP_TITLE) ||
+        'Construct.Chat - AI-Powered Construction Intelligence & Automation';
+      document.title = appTitle;
+    }
+  }, [conversationId, startupConfig?.appTitle]);
 
   /** This effect is mainly for the first conversation state change on first load of the page.
    *  Adjusting this may have unintended consequences on the conversation state.

@@ -2,6 +2,7 @@ import {
   Constants,
   defaultAssistantsVersion,
   ConversationListResponse,
+  LocalStorageKeys,
 } from 'librechat-data-provider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { dataService, MutationKeys, QueryKeys, defaultOrderQuery } from 'librechat-data-provider';
@@ -38,7 +39,10 @@ export const useGenTitleMutation = (): TGenTitleMutation => {
         ...c,
         title: response.title,
       }));
-      document.title = response.title;
+      const appTitle =
+        localStorage.getItem(LocalStorageKeys.APP_TITLE) ||
+        'Construct.Chat - AI-Powered Construction Intelligence & Automation';
+      document.title = `${response.title} | ${appTitle}`;
     },
   });
 };

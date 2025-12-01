@@ -4,10 +4,11 @@ import { useParams } from 'react-router-dom';
 import { Constants } from 'librechat-data-provider';
 import { useToastContext, useMediaQuery } from '@librechat/client';
 import type { TConversation } from 'librechat-data-provider';
-import { useUpdateConversationMutation } from '~/data-provider';
+import { useUpdateConversationMutation, useGetStartupConfig } from '~/data-provider';
 import EndpointIcon from '~/components/Endpoints/EndpointIcon';
 import { useNavigateToConvo, useLocalize } from '~/hooks';
 import { useGetEndpointsQuery } from '~/data-provider';
+import { LocalStorageKeys } from 'librechat-data-provider';
 import { NotificationSeverity } from '~/common';
 import { ConvoOptions } from './ConvoOptions';
 import RenameForm from './RenameForm';
@@ -27,6 +28,7 @@ export default function Conversation({ conversation, retainView, toggleNav }: Co
   const { showToast } = useToastContext();
   const { navigateToConvo } = useNavigateToConvo();
   const { data: endpointsConfig } = useGetEndpointsQuery();
+  const { data: startupConfig } = useGetStartupConfig();
   const currentConvoId = useMemo(() => params.conversationId, [params.conversationId]);
   const updateConvoMutation = useUpdateConversationMutation(currentConvoId ?? '');
   const activeConvos = useRecoilValue(store.allConversationsSelector);
@@ -110,7 +112,11 @@ export default function Conversation({ conversation, retainView, toggleNav }: Co
     toggleNav();
 
     if (typeof title === 'string' && title.length > 0) {
-      document.title = title;
+      const appTitle =
+        startupConfig?.appTitle ||
+        localStorage.getItem(LocalStorageKeys.APP_TITLE) ||
+        'Construct.Chat - AI-Powered Construction Intelligence & Automation';
+      document.title = `${title} | ${appTitle}`;
     }
 
     navigateToConvo(conversation, {

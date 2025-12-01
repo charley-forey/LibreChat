@@ -1,11 +1,23 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useLocalize } from '~/hooks';
+import { useLocalize, useDocumentTitle } from '~/hooks';
+import { useGetStartupConfig } from '~/data-provider';
+import { LocalStorageKeys } from 'librechat-data-provider';
 
 export default function OAuthError() {
   const localize = useLocalize();
   const [searchParams] = useSearchParams();
+  const { data: startupConfig } = useGetStartupConfig();
   const error = searchParams.get('error') || 'unknown_error';
+
+  // Set page title
+  const appTitle =
+    startupConfig?.appTitle ||
+    localStorage.getItem(LocalStorageKeys.APP_TITLE) ||
+    'Construct.Chat - AI-Powered Construction Intelligence & Automation';
+  useDocumentTitle(
+    `${localize('com_ui_oauth_error_title') || 'Authentication Failed'} | ${appTitle}`,
+  );
 
   const getErrorMessage = (error: string): string => {
     switch (error) {

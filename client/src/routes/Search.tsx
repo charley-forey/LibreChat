@@ -2,10 +2,11 @@ import { useEffect, useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
 import { Spinner, useToastContext } from '@librechat/client';
 import MinimalMessagesWrapper from '~/components/Chat/Messages/MinimalMessages';
-import { useNavScrolling, useLocalize, useAuthContext } from '~/hooks';
+import { useNavScrolling, useLocalize, useAuthContext, useDocumentTitle } from '~/hooks';
 import SearchMessage from '~/components/Chat/Messages/SearchMessage';
-import { useMessagesInfiniteQuery } from '~/data-provider';
+import { useMessagesInfiniteQuery, useGetStartupConfig } from '~/data-provider';
 import { useFileMapContext } from '~/Providers';
+import { LocalStorageKeys } from 'librechat-data-provider';
 import store from '~/store';
 
 export default function Search() {
@@ -13,8 +14,16 @@ export default function Search() {
   const fileMap = useFileMapContext();
   const { showToast } = useToastContext();
   const { isAuthenticated } = useAuthContext();
+  const { data: startupConfig } = useGetStartupConfig();
   const search = useRecoilValue(store.search);
   const searchQuery = search.debouncedQuery;
+
+  // Set page title
+  const appTitle =
+    startupConfig?.appTitle ||
+    localStorage.getItem(LocalStorageKeys.APP_TITLE) ||
+    'Construct.Chat - AI-Powered Construction Intelligence & Automation';
+  useDocumentTitle(`${localize('com_ui_search') || 'Search'} | ${appTitle}`);
 
   const {
     data: searchMessages,

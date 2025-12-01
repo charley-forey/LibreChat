@@ -8,7 +8,8 @@ import { PermissionTypes, Permissions, QueryKeys } from 'librechat-data-provider
 import type t from 'librechat-data-provider';
 import type { ContextType } from '~/common';
 import { useDocumentTitle, useHasAccess, useLocalize, TranslationKeys } from '~/hooks';
-import { useGetEndpointsQuery, useGetAgentCategoriesQuery } from '~/data-provider';
+import { useGetEndpointsQuery, useGetAgentCategoriesQuery, useGetStartupConfig } from '~/data-provider';
+import { LocalStorageKeys } from 'librechat-data-provider';
 import MarketplaceAdminSettings from './MarketplaceAdminSettings';
 import { SidePanelProvider, useChatContext } from '~/Providers';
 import { SidePanelGroup } from '~/components/SidePanel';
@@ -38,6 +39,7 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ className = '' }) =
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const { conversation, newConversation } = useChatContext();
+  const { data: startupConfig } = useGetStartupConfig();
 
   const isSmallScreen = useMediaQuery('(max-width: 768px)');
   const { navVisible, setNavVisible } = useOutletContext<ContextType>();
@@ -63,7 +65,11 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ className = '' }) =
   const [selectedAgent, setSelectedAgent] = useState<t.Agent | null>(null);
 
   // Set page title
-  useDocumentTitle(`${localize('com_agents_marketplace')} | LibreChat`);
+  const appTitle =
+    startupConfig?.appTitle ||
+    localStorage.getItem(LocalStorageKeys.APP_TITLE) ||
+    'Construct.Chat - AI-Powered Construction Intelligence & Automation';
+  useDocumentTitle(`${localize('com_agents_marketplace')} | ${appTitle}`);
 
   // Ensure right sidebar is always visible in marketplace
   useEffect(() => {

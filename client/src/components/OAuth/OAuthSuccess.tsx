@@ -1,12 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useLocalize } from '~/hooks';
+import { useLocalize, useDocumentTitle } from '~/hooks';
+import { useGetStartupConfig } from '~/data-provider';
+import { LocalStorageKeys } from 'librechat-data-provider';
 
 export default function OAuthSuccess() {
   const localize = useLocalize();
   const [searchParams] = useSearchParams();
+  const { data: startupConfig } = useGetStartupConfig();
   const [secondsLeft, setSecondsLeft] = useState(3);
   const serverName = searchParams.get('serverName');
+
+  // Set page title
+  const appTitle =
+    startupConfig?.appTitle ||
+    localStorage.getItem(LocalStorageKeys.APP_TITLE) ||
+    'Construct.Chat - AI-Powered Construction Intelligence & Automation';
+  useDocumentTitle(
+    `${localize('com_ui_oauth_success_title') || 'Authentication Successful'} | ${appTitle}`,
+  );
 
   useEffect(() => {
     const countdown = setInterval(() => {

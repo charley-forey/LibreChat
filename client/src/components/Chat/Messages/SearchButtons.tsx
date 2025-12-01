@@ -1,12 +1,13 @@
 import { Link } from 'lucide-react';
 import { useRecoilValue } from 'recoil';
-import { QueryKeys } from 'librechat-data-provider';
+import { QueryKeys, LocalStorageKeys } from 'librechat-data-provider';
 import { useQueryClient } from '@tanstack/react-query';
 import type { TMessage, TConversation } from 'librechat-data-provider';
 import type { InfiniteData } from '@tanstack/react-query';
 import type { ConversationCursorData } from '~/utils';
 import { useLocalize, useNavigateToConvo } from '~/hooks';
 import { findConversationInInfinite } from '~/utils';
+import { useGetStartupConfig } from '~/data-provider';
 import store from '~/store';
 
 export default function SearchButtons({ message }: { message: TMessage }) {
@@ -14,6 +15,7 @@ export default function SearchButtons({ message }: { message: TMessage }) {
   const queryClient = useQueryClient();
   const search = useRecoilValue(store.search);
   const { navigateToConvo } = useNavigateToConvo();
+  const { data: startupConfig } = useGetStartupConfig();
   const conversationId = message.conversationId ?? '';
 
   const clickHandler = async (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -38,7 +40,13 @@ export default function SearchButtons({ message }: { message: TMessage }) {
       title = cachedConvo?.title ?? '';
     }
 
-    document.title = title;
+    if (title) {
+      const appTitle =
+        startupConfig?.appTitle ||
+        localStorage.getItem(LocalStorageKeys.APP_TITLE) ||
+        'Construct.Chat - AI-Powered Construction Intelligence & Automation';
+      document.title = `${title} | ${appTitle}`;
+    }
     navigateToConvo(
       cachedConvo ??
         ({

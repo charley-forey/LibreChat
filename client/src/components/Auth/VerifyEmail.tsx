@@ -1,13 +1,24 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Spinner, ThemeSelector } from '@librechat/client';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useVerifyEmailMutation, useResendVerificationEmail } from '~/data-provider';
-import { useLocalize } from '~/hooks';
+import { useVerifyEmailMutation, useResendVerificationEmail, useGetStartupConfig } from '~/data-provider';
+import { useLocalize, useDocumentTitle } from '~/hooks';
+import { LocalStorageKeys } from 'librechat-data-provider';
 
 function RequestPasswordReset() {
   const navigate = useNavigate();
   const localize = useLocalize();
   const [params] = useSearchParams();
+  const { data: startupConfig } = useGetStartupConfig();
+
+  // Set page title
+  const appTitle =
+    startupConfig?.appTitle ||
+    localStorage.getItem(LocalStorageKeys.APP_TITLE) ||
+    'Construct.Chat - AI-Powered Construction Intelligence & Automation';
+  useDocumentTitle(
+    `${localize('com_auth_email_verification_in_progress') || 'Email Verification'} | ${appTitle}`,
+  );
 
   const [countdown, setCountdown] = useState<number>(3);
   const [headerText, setHeaderText] = useState<string>('');
